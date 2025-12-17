@@ -43,7 +43,7 @@ async function createAppointment(formData: FormData) {
   const resend = new Resend(process.env.RESEND_API_KEY!)
   await resend.emails.send({
     from: "Nirmal Mantra Children Hospital <onboarding@resend.dev>",
-    to: ["nmch2023@gmail.com"],
+    to: ["aaryan.b.rathod99@gmail.com"],
     subject: "New Appointment Enquiry",
     html: `
       <h2>New Appointment Enquiry</h2>
