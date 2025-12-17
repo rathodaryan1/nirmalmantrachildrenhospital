@@ -87,68 +87,107 @@ export default function ContactPage() {
               </Card>
             </div>
 
-            {/* Enquiry Form */}
+           {/* Enquiry Form */}
+<section id="enquiry" className="py-16">
+  <div className="container mx-auto max-w-3xl px-4">
+    <div className="text-center mb-12">
+      <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+        Book an Appointment
+      </h2>
+      <p className="text-muted-foreground">
+        Fill out the form below and our team will get back to you within 24 hours
+      </p>
+    </div>
+
+    <Card className="border-2">
+      <CardContent className="pt-6">
+
+        {/* 🔑 IMPORTANT: action is already correct */}
+        <form action={createAppointment} className="space-y-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-primary mb-6">Request an Appointment</h2>
-              <Card className="border-2">
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground mb-6">
-                    Fill in the details below and our team will contact you shortly.
-                  </p>
-                  <form className="space-y-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        Parent / Patient Name <span className="text-destructive">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        required
-                        className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                        Mobile Number <span className="text-destructive">*</span>
-                      </label>
-                      <input
-                        type="tel"
-                        id="mobile"
-                        required
-                        className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="age" className="block text-sm font-medium mb-2">
-                        Child's Age (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        id="age"
-                        className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium mb-2">
-                        Message (Optional)
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={4}
-                        className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" size="lg">
-                      Submit Enquiry
-                    </Button>
-                    <p className="text-xs text-center text-muted-foreground">
-                      Your information will be kept confidential.
-                    </p>
-                  </form>
-                </CardContent>
-              </Card>
+              <label htmlFor="parent-name" className="block text-sm font-medium mb-2">
+                Parent Name *
+              </label>
+              <input
+                type="text"
+                id="parent-name"
+                name="parent_name"   {/* ✅ ADDED */}
+                required
+                className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Enter parent name"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="child-name" className="block text-sm font-medium mb-2">
+                Child Name *
+              </label>
+              <input
+                type="text"
+                id="child-name"
+                name="child_name"    {/* ✅ ADDED */}
+                required
+                className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Enter child name"
+              />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"         {/* ✅ ADDED */}
+                required
+                className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Enter phone number"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="child-age" className="block text-sm font-medium mb-2">
+                Child Age
+              </label>
+              <input
+                type="text"
+                id="child-age"
+                name="child_age"     {/* ✅ ADDED */}
+                className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="e.g., 2 years"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="concern" className="block text-sm font-medium mb-2">
+              Health Concern / Reason for Visit
+            </label>
+            <textarea
+              id="concern"
+              name="concern"        {/* ✅ ADDED */}
+              rows={4}
+              className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              placeholder="Briefly describe your concern..."
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg">
+            <Mail className="mr-2 h-5 w-5" />
+            Submit Enquiry
+          </Button>
+
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+</section>
+
 
           {/* Map */}
           <div className="mt-12">

@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Target, Award, Users } from "lucide-react"
 import { BottomActionBar } from "@/components/bottom-action-bar"
+import { neon } from "@neondatabase/serverless"
 
 export default function AboutPage() {
   return (

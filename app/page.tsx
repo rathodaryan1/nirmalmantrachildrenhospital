@@ -6,6 +6,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Phone, MapPin, Clock, Heart, Shield, Activity, Baby, Brain, Users, CheckCircle, Mail } from "lucide-react"
 import { BottomActionBar } from "@/components/bottom-action-bar"
 import Image from "next/image"
+import { neon } from "@neondatabase/serverless"
+const sql = neon(process.env.DATABASE_URL!)
+  
+async function createAppointment(formData: FormData) {
+  "use server"
+
+  const parentName = formData.get("parent_name")
+  const childName = formData.get("child_name")
+  const phone = formData.get("phone")
+  const childAge = formData.get("child_age")
+  const concern = formData.get("concern")
+
+  await sql(
+    `
+    INSERT INTO appointment_enquiries
+    (parent_name, child_name, phone_number, child_age, health_concern)
+    VALUES ($1, $2, $3, $4, $5)
+    `,
+    [parentName, childName, phone, childAge, concern]
+  )
+}
+
+
+
 
 export default function HomePage() {
   return (
@@ -475,7 +499,7 @@ export default function HomePage() {
           </div>
           <Card className="border-2">
             <CardContent className="pt-6">
-              <form className="space-y-4">
+              <form action={createAppointment} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="parent-name" className="block text-sm font-medium mb-2">
