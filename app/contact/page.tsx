@@ -7,6 +7,7 @@ import { Phone, Mail, MapPin, Clock } from "lucide-react"
 import { BottomActionBar } from "@/components/bottom-action-bar"
 import { neon } from "@neondatabase/serverless"
 import { redirect } from "next/navigation"
+import { Resend } from "resend"
 const sql = neon(process.env.DATABASE_URL!)
 
 async function createAppointment(formData: FormData) {
@@ -30,6 +31,29 @@ async function createAppointment(formData: FormData) {
       formData.get("concern") || formData.get("message"),
     ]
   )
+
+  // Read form values
+  const parentName = formData.get("parent_name") as string
+  const childName = formData.get("child_name") as string
+  const phone = formData.get("phone") as string
+  const childAge = formData.get("child_age") as string
+  const concern = formData.get("concern") as string
+
+  // Send email to hospital
+  const resend = new Resend(process.env.RESEND_API_KEY!)
+  await resend.emails.send({
+    from: "Nirmal Mantra Children Hospital <onboarding@resend.dev>",
+    to: ["nmch2023@gmail.com"],
+    subject: "New Appointment Enquiry",
+    html: `
+      <h2>New Appointment Enquiry</h2>
+      <p><strong>Parent Name:</strong> ${parentName}</p>
+      <p><strong>Child Name:</strong> ${childName}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Child Age:</strong> ${childAge || "N/A"}</p>
+      <p><strong>Concern:</strong> ${concern || "N/A"}</p>
+    `,
+  })
 
   // redirect back with success flag
   redirect("/contact?submitted=true#enquiry")

@@ -10,7 +10,6 @@ import { redirect } from "next/navigation"
 import { neon } from "@neondatabase/serverless"
 import { Resend } from "resend"
 const sql = neon(process.env.DATABASE_URL!)
-const resend = new Resend(process.env.RESEND_API_KEY!)
   
 async function createAppointment(formData: FormData) {
   "use server"
@@ -45,6 +44,7 @@ async function createAppointment(formData: FormData) {
   const concern = formData.get("concern") as string
 
   // Send email to hospital
+  const resend = new Resend(process.env.RESEND_API_KEY!)
   await resend.emails.send({
     from: "Nirmal Mantra Children Hospital <onboarding@resend.dev>",
     to: ["aaryan.b.rathod99@gmail.com"],
