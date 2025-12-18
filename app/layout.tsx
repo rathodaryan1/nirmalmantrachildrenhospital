@@ -39,7 +39,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning is added here because browser extensions 
+    // or the SplashScreen might modify attributes before React takes over.
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
         <SplashScreen />
         <ScrollToTop />

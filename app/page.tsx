@@ -9,8 +9,7 @@ import Image from "next/image"
 import { redirect } from "next/navigation"
 import { neon } from "@neondatabase/serverless"
 import { Resend } from "resend"
-const sql = neon(process.env.DATABASE_URL!)
-  
+
 async function createAppointment(formData: FormData) {
   "use server"
 
@@ -20,21 +19,18 @@ async function createAppointment(formData: FormData) {
 
   const sql = neon(process.env.DATABASE_URL)
 
-  // ✅ 1. Insert into DB
-  await sql.query(
-    `
+  // Insert into DB
+  await sql`
     INSERT INTO appointment_enquiries
     (parent_name, child_name, phone_number, child_age, health_concern)
-    VALUES ($1, $2, $3, $4, $5)
-    `,
-    [
-      formData.get("parent_name"),
-      formData.get("child_name"),
-      formData.get("phone"),
-      formData.get("child_age"),
-      formData.get("concern"),
-    ]
-  )
+    VALUES (
+      ${formData.get("parent_name")},
+      ${formData.get("child_name")},
+      ${formData.get("phone")},
+      ${formData.get("child_age")},
+      ${formData.get("concern")}
+    )
+  `
 
   // Read form values for email
   const parentName = formData.get("parent_name") as string
@@ -44,22 +40,24 @@ async function createAppointment(formData: FormData) {
   const concern = formData.get("concern") as string
 
   // Send email to hospital
-  const resend = new Resend(process.env.RESEND_API_KEY!)
-  await resend.emails.send({
-    from: "Nirmal Mantra Children Hospital <onboarding@resend.dev>",
-    to: ["aaryan.b.rathod99@gmail.com"],
-    subject: "New Appointment Enquiry",
-    html: `
-      <h2>New Appointment Enquiry</h2>
-      <p><strong>Parent Name:</strong> ${parentName}</p>
-      <p><strong>Child Name:</strong> ${childName}</p>
-      <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Child Age:</strong> ${childAge || "N/A"}</p>
-      <p><strong>Concern:</strong> ${concern || "N/A"}</p>
-    `,
-  })
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    await resend.emails.send({
+      from: "Nirmal Mantra Children Hospital <onboarding@resend.dev>",
+      to: ["aaryan.b.rathod99@gmail.com"],
+      subject: "New Appointment Enquiry",
+      html: `
+        <h2>New Appointment Enquiry</h2>
+        <p><strong>Parent Name:</strong> ${parentName}</p>
+        <p><strong>Child Name:</strong> ${childName}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Child Age:</strong> ${childAge || "N/A"}</p>
+        <p><strong>Concern:</strong> ${concern || "N/A"}</p>
+      `,
+    })
+  }
 
-  // ✅ 2. Redirect AFTER insert
+  // Redirect after successful submission
   redirect("/?submitted=true#enquiry")
 }
 
@@ -69,6 +67,7 @@ export default async function HomePage({
   searchParams: Promise<{ submitted?: string }>
 }) {
   const params = await searchParams
+  const success = params.submitted === "true"
 
   return (
     <div className="min-h-screen">
@@ -111,7 +110,7 @@ export default async function HomePage({
               <div className="relative">
                 <Image
                   src="/modern-pediatric-hospital-exterior-building-with-b.jpg"
-                  alt="Modern Pediatric Hospital Building - Professional Stock Photo (Replace Later)"
+                  alt="Modern Pediatric Hospital Building"
                   width={700}
                   height={500}
                   className="rounded-2xl shadow-2xl border-4 border-white"
@@ -400,7 +399,7 @@ export default async function HomePage({
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-primary/20">
                   <Image
                     src="/professional-male-pediatric-doctor-in-white-coat-n.jpg"
-                    alt="Dr. Ridhdhish D. Lania - Doctor Image (Replace Later)"
+                    alt="Dr. Ridhdhish D. Lania"
                     width={200}
                     height={200}
                     className="w-full h-full object-cover"
@@ -433,7 +432,7 @@ export default async function HomePage({
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-primary/20">
                   <Image
                     src="/experienced-male-pediatric-neurologist-doctor-prof.jpg"
-                    alt="Dr. Dhaval Solanki - Doctor Image (Replace Later)"
+                    alt="Dr. Dhaval Solanki"
                     width={200}
                     height={200}
                     className="w-full h-full object-cover"
@@ -466,7 +465,7 @@ export default async function HomePage({
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-primary/20">
                   <Image
                     src="/professional-pediatric-consultant-doctor-neutral-m.jpg"
-                    alt="Dr. Bhupit K. Gadhia - Doctor Image (Replace Later)"
+                    alt="Dr. Bhupit K. Gadhia"
                     width={200}
                     height={200}
                     className="w-full h-full object-cover"
@@ -527,103 +526,103 @@ export default async function HomePage({
       </section>
 
       {/* Enquiry Form */}
-      <section id="enquiry" className="py-16">
-  <div className="container mx-auto max-w-3xl px-4">
+      <section id="enquiry" className="py-16 scroll-mt-32">
+        <div className="container mx-auto max-w-3xl px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary text-center mb-3">Book an Appointment</h2>
+          <p className="text-center text-muted-foreground mb-8">
+            Fill out the form below and our team will contact you shortly to confirm your appointment.
+          </p>
 
-    {/* ✅ SUCCESS MESSAGE */}
-   {params?.submitted === "true" && (
-  <div className="mb-6 rounded-md bg-green-100 border border-green-400 text-green-800 px-4 py-3 text-center font-medium">
-    ✅ Appointment submitted successfully! We will contact you shortly.
-  </div>
-)}
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 rounded-lg bg-green-50 border-2 border-green-500 text-green-800 px-6 py-4 text-center">
+              <p className="font-semibold text-lg">✅ Appointment submitted successfully!</p>
+              <p className="text-sm mt-1">We will contact you shortly to confirm your appointment.</p>
+            </div>
+          )}
 
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle className="text-2xl">Appointment Enquiry Form</CardTitle>
+              <CardDescription>Please provide your details and we'll get back to you soon</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form action={createAppointment} className="space-y-4">
+                <div>
+                  <label htmlFor="parent_name" className="block text-sm font-medium mb-2">
+                    Parent Name <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    id="parent_name"
+                    name="parent_name"
+                    required
+                    placeholder="Enter parent's full name"
+                    className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
 
-    <div className="text-center mb-12">
-      <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-        Book an Appointment
-      </h2>
-      <p className="text-muted-foreground">
-        Fill out the form below and our team will get back to you within 24 hours
-      </p>
-    </div>
+                <div>
+                  <label htmlFor="child_name" className="block text-sm font-medium mb-2">
+                    Child Name <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    id="child_name"
+                    name="child_name"
+                    required
+                    placeholder="Enter child's name"
+                    className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
 
-    <Card className="border-2">
-      <CardContent className="pt-6">
-        <form action={createAppointment} className="space-y-4">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                    Phone Number <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    placeholder="Enter your contact number"
+                    className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Parent Name *
-            </label>
-            <input
-              type="text"
-              name="parent_name"
-              required
-              className="w-full px-4 py-2 border rounded-md"
-              placeholder="Enter parent name"
-            />
-          </div>
+                <div>
+                  <label htmlFor="child_age" className="block text-sm font-medium mb-2">
+                    Child Age (Optional)
+                  </label>
+                  <input
+                    id="child_age"
+                    name="child_age"
+                    placeholder="e.g., 2 years, 6 months"
+                    className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Child Name *
-            </label>
-            <input
-              type="text"
-              name="child_name"
-              required
-              className="w-full px-4 py-2 border rounded-md"
-              placeholder="Enter child name"
-            />
-          </div>
+                <div>
+                  <label htmlFor="concern" className="block text-sm font-medium mb-2">
+                    Health Concern / Reason for Visit (Optional)
+                  </label>
+                  <textarea
+                    id="concern"
+                    name="concern"
+                    rows={4}
+                    placeholder="Please describe your child's health concern or reason for appointment"
+                    className="w-full px-4 py-3 border-2 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              required
-              className="w-full px-4 py-2 border rounded-md"
-              placeholder="Enter phone number"
-            />
-          </div>
+                <Button type="submit" size="lg" className="w-full">
+                  <Mail className="mr-2 h-5 w-5" />
+                  Submit Enquiry
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Child Age
-            </label>
-            <input
-              type="text"
-              name="child_age"
-              className="w-full px-4 py-2 border rounded-md"
-              placeholder="e.g., 2 years"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Health Concern / Reason for Visit
-            </label>
-            <textarea
-              name="concern"
-              rows={4}
-              className="w-full px-4 py-2 border rounded-md resize-none"
-              placeholder="Briefly describe your concern..."
-            />
-          </div>
-
-          <Button type="submit" className="w-full" size="lg">
-            <Mail className="mr-2 h-5 w-5" />
-            Submit Enquiry
-          </Button>
-
-        </form>
-      </CardContent>
-    </Card>
-  </div>
-</section>
 
       {/* Location Section */}
       <section id="location" className="bg-muted/50 py-16">

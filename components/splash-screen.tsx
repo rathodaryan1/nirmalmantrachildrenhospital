@@ -1,74 +1,74 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Hospital } from "lucide-react"
+import Image from "next/image"
 
 export function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(true)
-  const [shouldRender, setShouldRender] = useState(true)
+  const [visible, setVisible] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Check if splash screen has already been shown in this session
-    const hasShownSplash = sessionStorage.getItem("hasShownSplash")
+    // Run only on client
+    setMounted(true)
 
-    if (hasShownSplash) {
-      // Don't show splash screen again in this session
-      setShouldRender(false)
-      return
-    }
+    const hasShown = sessionStorage.getItem("hasShownSplash")
 
-    // Mark that splash screen has been shown
+    if (hasShown) return
+
+    // Show splash
+    setVisible(true)
     sessionStorage.setItem("hasShownSplash", "true")
 
-    // Start fade out after 1.8 seconds
-    const fadeOutTimer = setTimeout(() => {
-      setIsVisible(false)
+    // Start fade-out
+    const fadeTimer = setTimeout(() => {
+      setVisible(false)
     }, 1800)
 
-    // Remove from DOM after fade animation completes (2.3 seconds total)
-    const removeTimer = setTimeout(() => {
-      setShouldRender(false)
-    }, 2300)
-
-    return () => {
-      clearTimeout(fadeOutTimer)
-      clearTimeout(removeTimer)
-    }
+    return () => clearTimeout(fadeTimer)
   }, [])
 
-  // Don't render if already shown in this session
-  if (!shouldRender) return null
+  // Prevent SSR / hydration mismatch
+  if (!mounted || !visible) return null
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-white flex items-center justify-center transition-opacity duration-500 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
-      style={{
-        pointerEvents: isVisible ? "auto" : "none",
-      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-white
+                 transition-opacity duration-500 ease-in-out"
     >
-      <div className="flex flex-col items-center gap-6 motion-reduce:animate-none">
-        {/* Hospital Logo */}
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-3 rounded-xl">
-            <Hospital className="h-10 w-10 text-white" />
+      <div className="flex flex-col items-center gap-6">
+        {/* Logo + Name */}
+        <div className="flex items-center gap-4">
+          <div className="relative h-20 w-20">
+            <Image
+              src="/logo.jpg"   // must be inside /public
+              alt="Nirmal Mantra Children Hospital Logo"
+              fill
+              priority
+              className="object-contain"
+            />
           </div>
-          <div className="text-left">
-            <h1 className="text-2xl font-bold text-gray-900 leading-tight">Nirmal Mantra</h1>
-            <p className="text-sm text-blue-600 font-semibold">Children Hospital</p>
+
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight">
+              Nirmal Mantra
+            </h1>
+            <p className="text-sm font-bold uppercase tracking-wider text-blue-600">
+              Children Hospital
+            </p>
           </div>
         </div>
 
-        {/* Loading Indicator */}
+        {/* Loader */}
         <div className="flex gap-2">
-          <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: "300ms" }} />
+          <span className="h-2 w-2 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]" />
+          <span className="h-2 w-2 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]" />
+          <span className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" />
         </div>
 
         {/* Tagline */}
-        <p className="text-sm text-gray-500 font-medium">Hope Lives Here</p>
+        <p className="text-sm italic text-gray-400">
+          Hope Lives Here
+        </p>
       </div>
     </div>
   )
